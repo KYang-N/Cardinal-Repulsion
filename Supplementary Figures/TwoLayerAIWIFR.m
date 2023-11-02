@@ -293,8 +293,7 @@ xlim([0,max(TimeInSecond)]);
 xline(TMSTime,'Color',[0.3,0.3,0.3],'LineWidth',1.2);
 xlabel('Time (s)','FontSize',10);
 set(gcf,'Units','Centimeters','Position',[2,2,4,3]);
-FigOutDir = '';
-% print(f1,'-r300','-depsc',[FigOutDir,'MaxBias',Mode,'alpha',strrep(num2str(alpha),'.','p'),'.eps']);
+
 % Plot asymmetry index
 
 f2 = figure;
@@ -313,25 +312,7 @@ xline(TMSTime,'Color',[0.3,0.3,0.3],'LineWidth',1.2);
 ylim([0,1]);
 yticks([0,1]);
 set(gcf,'Units','Centimeters','Position',[2,2,4,3]);
-% print(f2,'-r300','-depsc',[FigOutDir,'AI',Mode,'alpha',strrep(num2str(alpha),'.','p'),'.eps']);
-% Plot bump trace
 
-% Bump = figure;
-% figure(Bump)
-% RateMatrix = RateMemory(:,round(3/8*NInputSample),:);
-% RateMatrix = reshape(RateMatrix,[Nm,length(PlotTime)]);
-% imagesc(RateMatrix);
-% colormap(flipud(slanCM(19)));
-% caxis([3,40]);
-% h = colorbar;
-% set(get(h,'title'),'string','Hz');
-% set(gca,'Ydir','normal','FontSize',14);
-% xlabel('t (s)');
-% yticks(0:Ns/4:Ns);
-% yticklabels({'0','\pi/2','\pi','3\pi/2','2\pi'});
-% ylabel('\psi','FontSize',14);
-% xticks(0:(length(PlotTime)/4):length(PlotTime));
-% xticklabels({'0','5','10','15','20'});
 % Plot firing rate change
 
 f3 = figure;
@@ -350,7 +331,7 @@ xlim([0,max(TimeInSecond)]);
 xline(TMSTime,'Color',[0.3,0.3,0.3],'LineWidth',1.2);
 xlabel('Time (s)','FontSize',10);
 set(gcf,'Units','Centimeters','Position',[2,2,4,3]);
-% print(f3,'-r300','-depsc',[FigOutDir,'MaxFR',Mode,'alpha',strrep(num2str(alpha),'.','p'),'.eps']);
+
 % Plot tuning widths change
 
 f6 = figure;
@@ -367,4 +348,3 @@ set(gca,'FontSize',10,'LooseInset',[0 0 0 0],'TickLength',[0.025,0.01],'TickDir'
 box off
 ylabel('WI (a.u.)','FontSize',10);
 set(gcf,'Units','Centimeters','Position',[2,2,4,3]);
-% print(f6,'-r300','-depsc',[FigOutDir,'WI',Mode,'alpha',strrep(num2str(alpha),'.','p'),'.eps']);
