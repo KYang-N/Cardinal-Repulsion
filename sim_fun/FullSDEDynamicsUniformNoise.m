@@ -1,4 +1,4 @@
-function [DecodedOrientation,SensoryNet,MemoryNet,DynParams] = FullSDEDynamics(SensoryNet,MemoryNet,DynParams)
+function [DecodedOrientation,SensoryNet,MemoryNet,DynParams] = FullSDEDynamicsUniformNoise(SensoryNet,MemoryNet,DynParams)
 
 if ~isfield(DynParams,'NoiseTime')
     DynParams.NoiseTime = 0;
@@ -54,6 +54,10 @@ end
 
 if ~isfield(DynParams,'DecodingFrom')
     DynParams.DecodingFrom = 'Memory';
+end
+
+if ~isfield(DynParams,'sigma')
+    DynParams.sigma = 0.2; % Strength of noise
 end
 
 if ~isfield(SensoryNet,'q')
@@ -180,13 +184,13 @@ if DynParams.Parallel == 0
             NoiseFlag = (ii>(DynParams.NoiseTime/dt))*DynParams.AddNoise;
             TMSFlag = ii<(DynParams.TMSTime/dt);
             SS_new = SS_old + 1/Tau_syn*dt*(-SS_old+mSensory_old)+...
-                1/Tau_syn*sqrt(dt)*sqrt(mSensory_old*dt).*randn(Ns,NInputSample)*NoiseFlag;
+                1/Tau_syn*sqrt(dt)*DynParams.sigma*randn(Ns,NInputSample)*NoiseFlag;
             SM_new = SM_old + 1/Tau_syn*dt*(-SM_old+mMemory_old)+...
-                1/Tau_syn*sqrt(dt)*sqrt(mMemory_old*dt).*randn(Nm,NInputSample)*NoiseFlag;
+                1/Tau_syn*sqrt(dt)*DynParams.sigma.*randn(Nm,NInputSample)*NoiseFlag;
             MS_new = MS_old + 1/Tau_syn*dt*(-MS_old+mSensory_old)+...
-                1/Tau_syn*sqrt(dt)*sqrt(mSensory_old*dt).*randn(Ns,NInputSample)*NoiseFlag;
+                1/Tau_syn*sqrt(dt)*DynParams.sigma.*randn(Ns,NInputSample)*NoiseFlag;
             MM_new = MM_old + 1/Tau_syn*dt*(-MM_old+mMemory_old)+...
-                1/Tau_syn*sqrt(dt)*sqrt(mMemory_old*dt).*randn(Nm,NInputSample)*NoiseFlag;
+                1/Tau_syn*sqrt(dt)*DynParams.sigma.*randn(Nm,NInputSample)*NoiseFlag;
             SensoryInputI = SensoryNet.Conn*SS_old + MemoryNet.MBackward*SM_old ...
                 + I0'*(ii<(StimTime/dt));
             mSensory_new = SensoryNet.q(SensoryInputI);
@@ -239,13 +243,13 @@ elseif DynParams.Parallel ~= 0
             NoiseFlag = (ii>(DynParams.NoiseTime/dt))*DynParams.AddNoise;
             TMSFlag = ii<(DynParams.TMSTime/dt);
             SS_new = SS_old + 1/Tau_syn*dt*(-SS_old+mSensory_old)+...
-                1/Tau_syn*sqrt(dt)*sqrt(mSensory_old*dt).*randn(Ns,NInputSample)*NoiseFlag;
+                1/Tau_syn*sqrt(dt)*DynParams.sigma.*randn(Ns,NInputSample)*NoiseFlag;
             SM_new = SM_old + 1/Tau_syn*dt*(-SM_old+mMemory_old)+...
-                1/Tau_syn*sqrt(dt)*sqrt(mMemory_old*dt).*randn(Nm,NInputSample)*NoiseFlag;
+                1/Tau_syn*sqrt(dt)*DynParams.sigma.*randn(Nm,NInputSample)*NoiseFlag;
             MS_new = MS_old + 1/Tau_syn*dt*(-MS_old+mSensory_old)+...
-                1/Tau_syn*sqrt(dt)*sqrt(mSensory_old*dt).*randn(Ns,NInputSample)*NoiseFlag;
+                1/Tau_syn*sqrt(dt)*DynParams.sigma.*randn(Ns,NInputSample)*NoiseFlag;
             MM_new = MM_old + 1/Tau_syn*dt*(-MM_old+mMemory_old)+...
-                1/Tau_syn*sqrt(dt)*sqrt(mMemory_old*dt).*randn(Nm,NInputSample)*NoiseFlag;
+                1/Tau_syn*sqrt(dt)*DynParams.sigma.*randn(Nm,NInputSample)*NoiseFlag;
             SensoryInputI = SensoryNet.Conn*SS_old + MemoryNet.MBackward*SM_old ...
                 + I0'*(ii<(StimTime/dt));
             mSensory_new = SensoryNet.q(SensoryInputI);

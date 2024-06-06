@@ -1,4 +1,4 @@
-function [vtheta,Dtheta,ThetaLoc] = Compute_vtheta_Dtheta_new(SensoryNet,MemoryNet,DynParams)
+function [vtheta,Dtheta,ThetaLoc] = Compute_vtheta_Dtheta_Uniform_noise(SensoryNet,MemoryNet,DynParams)
 
 if ~isfield(SensoryNet,'tau')
     SensoryNet.tau = 1e-2;
@@ -34,6 +34,10 @@ end
 
 if ~isfield(DynParams,'DecodingFrom')
     DynParams.DecodingFrom = 'Memory';
+end
+
+if ~isfield(DynParams,'sigma')
+    DynParams.sigma = 0.2;
 end
 
 if ~isfield(SensoryNet,'q')
@@ -130,6 +134,7 @@ end
 
 ThetaLoc = zeros(1,NInputSample);
 for ii = 1:NInputSample
+
     if strcmp(DynParams.DecodingFrom,'Memory')
         ThetaLoc(ii) = PVDecoder(PF,mMemory_new(:,ii));
     else
@@ -162,7 +167,7 @@ D = zeros(1,NInputSample);
 for i = 1:NInputSample
     v(i) = 1/(Tau_syn)*u(:,i)'*(-s_manifold(:,i)+phiOut(:,i)); % s
     uSquare = u(:,i).^2;
-    D(i) = 1/(2*(Tau_syn)^2)*uSquare'*phiOut(:,i)*dt;  % s
+    D(i) = 1/(2*(Tau_syn)^2)*sum(uSquare*DynParams.sigma^2);  % s
 end
 
 [Dtheta,vtheta] = ConvertTotheta_new(s_manifold,SampleInput,D,v);

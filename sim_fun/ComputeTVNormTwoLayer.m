@@ -1,4 +1,4 @@
-function [vtheta,Dtheta,ThetaLoc] = Compute_vtheta_Dtheta_new(SensoryNet,MemoryNet,DynParams)
+function [dsdthetaNorm,ThetaLoc] = ComputeTVNormTwoLayer(SensoryNet,MemoryNet,DynParams)
 
 if ~isfield(SensoryNet,'tau')
     SensoryNet.tau = 1e-2;
@@ -34,6 +34,10 @@ end
 
 if ~isfield(DynParams,'DecodingFrom')
     DynParams.DecodingFrom = 'Memory';
+end
+
+if ~isfield(DynParams,'sigma')
+    DynParams.sigma = 0.2;
 end
 
 if ~isfield(SensoryNet,'q')
@@ -130,6 +134,7 @@ end
 
 ThetaLoc = zeros(1,NInputSample);
 for ii = 1:NInputSample
+
     if strcmp(DynParams.DecodingFrom,'Memory')
         ThetaLoc(ii) = PVDecoder(PF,mMemory_new(:,ii));
     else
@@ -138,33 +143,20 @@ for ii = 1:NInputSample
 end
 
 s_manifold = [SS_old;MS_old;MM_old;SM_old];
-M_zero = zeros(SensoryNet.N,SensoryNet.N);
-W = [SensoryNet.Conn,M_zero,M_zero,MemoryNet.MBackward;SensoryNet.Conn,M_zero,M_zero,MemoryNet.MBackward;
-    M_zero,SensoryNet.MForward,MemoryNet.Conn,M_zero;M_zero,SensoryNet.MForward,MemoryNet.Conn,M_zero;];
-u = zeros(4*MemoryNet.N,NInputSample);
-phiOut = phiWithoutExt(W,s_manifold,MemoryNet.IEc,SensoryNet.q,MemoryNet.q);
 
-dsdtheta = ComputeDerivative(s_manifold,ThetaLoc);
-lambda = zeros(1,NInputSample);
+SampleInput = SampleInput/2*180/pi; % Convert to degrees
+sRight = [s_manifold(:,2:end),s_manifold(:,2)]; % note that s(:,1) == s(:,end)
+sLeft = [s_manifold(:,end-1),s_manifold(:,1:end-1)];
+ds = sRight-sLeft;
+ThetaRight = [SampleInput(2:end),SampleInput(2)];
+ThetaLeft = [SampleInput(end-1),SampleInput(1:end-1)];
+dtheta = ThetaRight-ThetaLeft;
+dtheta(dtheta<0) = dtheta(dtheta<0) + 180;
+deri = ds./dtheta;
+
+dsdthetaNorm = zeros(1,NInputSample);
 for i = 1:NInputSample
-    phiPrimeoutput = phiprimeWithoutExt(W,s_manifold(:,i),SensoryNet,MemoryNet);
-    K = diag(phiPrimeoutput)*W-eye(4*MemoryNet.N);
-    [V,E] = eig(K);
-    [lambda(i),Ind] = max(real(diag(E)));
-    u(:,i) = V(:,Ind);
-    if dsdtheta(:,i)'*u(:,i) < 0
-        u(:,i) = -u(:,i);
-    end
+    dsdthetaNorm(i) = norm(deri(:,i));  % s
 end
-
-v = zeros(1,NInputSample);
-D = zeros(1,NInputSample);
-for i = 1:NInputSample
-    v(i) = 1/(Tau_syn)*u(:,i)'*(-s_manifold(:,i)+phiOut(:,i)); % s
-    uSquare = u(:,i).^2;
-    D(i) = 1/(2*(Tau_syn)^2)*uSquare'*phiOut(:,i)*dt;  % s
-end
-
-[Dtheta,vtheta] = ConvertTotheta_new(s_manifold,SampleInput,D,v);
 
 

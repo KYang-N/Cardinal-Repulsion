@@ -45,7 +45,7 @@ ylabel('Bias $(^\circ)$','Interpreter','latex');
 xticks(0:pi/2:2*pi);
 xticklabels({'0','','90','','180'});
 xlim([0 2*pi]);
-ylim([min(BiasMean(end,:)-1),max(BiasMean(end,:)+1)])
+ylim([min(BiasMean(end,:))-1,max(BiasMean(end,:))+1])
 set(gca,'FontSize',10,'LineWidth',0.8,'TickLength',[0.025,0.01],'TickDir','out','XTickLabelRotation',0, ...
     'LooseInset',[0 0 0 0]);
 box off
@@ -78,10 +78,8 @@ end
 hold off
 set(gca,'FontSize',10,'LineWidth',0.8,'TickLength',[0.025,0.01],'TickDir','out','XTickLabelRotation',0, ...
     'LooseInset',[0 0 0 0]);
-% legend('',[num2str((DecodeTime(1)-StimTime)/1000),'s'],'',[num2str((DecodeTime(2)-StimTime)/1000),'s'],'',...
-%     [num2str((DecodeTime(3)-StimTime)/1000),'s']);
-% legend('boxoff')
-ylim([0 max(Std(end,:))+0.2]);
+
+ylim([0 max(Std(end,:)*1.2)]);
 xlim([0 2*pi]);
 xticks(0:pi/2:2*pi);
 xticklabels({'0','','90','','180'});

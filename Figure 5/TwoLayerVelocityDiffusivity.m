@@ -8,7 +8,7 @@ seed = 123;
 rng(seed)
 SensoryNet.N = 300;
 alphaRange = [0.03 0.04 0.05];
-% SensoryNet.beta = 0.08;
+% SensoryNet.beta = 0.09;
 SensoryNet.Mode = 'EOnly';
 
 MemoryNet.N = 300;
@@ -24,8 +24,11 @@ DynParams.dSample = 2*pi/(DynParams.NInputSample-1);
 DynParams.AddNoise = 0;
 DynParams.dt = 1e-3;
 DynParams.StimTime = 0.5;
-DynParams.Manifold_tmax = 1.5;
+DynParams.Manifold_tmax = 1.5; % Parameterize the manifold at 1s into the delay 
 DynParams.PFTime = 1.5;
+% DynParams.DecodingFrom = 'Sensory';
+% DynParams.sigma = 0.2; % This parameter specifies the s.d. of uniform
+% % Gaussian Noise. If using Poisson-like Gaussian noise, do not specify this parameter 
 %% Generate feedforward connectivity
 
 dthetas = 2*pi/SensoryNet.N;
@@ -53,6 +56,7 @@ tic
 for ii = 1:length(alphaRange)
     SensoryNet.alpha = alphaRange(ii);
     [vtheta(ii,:),Dtheta(ii,:),~] = Compute_vtheta_Dtheta_new(SensoryNet,MemoryNet,DynParams);
+%     [vtheta(ii,:),Dtheta(ii,:),~] = Compute_vtheta_Dtheta_Uniform_noise(SensoryNet,MemoryNet,DynParams);
 end
 toc
 %%
@@ -77,7 +81,7 @@ for ii = 1:length(alphaRange)
 end
 subplot(1,3,1)
 xlabel('$\theta$ ($^\circ$)','Interpreter','latex');
-ylabel('Potential (degrees^2/s)');
+% ylabel('Potential (degrees^2/s)');
 ylim([0 25]);
 set(gca,'FontSize',10,'TickLength',[0.025,0.01],'XTickLabelRotation',0,'LineWidth',0.8,'TickDir','out');
 xlim([0 2*pi]);
@@ -90,7 +94,7 @@ set(gca,'FontSize',10,'TickLength',[0.025,0.01],'XTickLabelRotation',0,'LineWidt
 box off
 yline(0,'--','LineWidth',1.0);
 xlabel('$\theta$ ($^\circ$)','Interpreter','latex');
-ylabel('Velocity ($^\circ/\mathrm{s}$)','Interpreter','latex');
+% ylabel('Velocity ($^\circ/\mathrm{s}$)','Interpreter','latex');
 xticks(0:pi/2:2*pi);
 ylim([-0.9,0.9]);
 xticklabels({'0','','90','','180'});
@@ -102,11 +106,14 @@ xlim([0 2*pi]);
 xticks(0:pi/2:2*pi);
 xticklabels({'0','','90','','180'});
 xlabel('$\theta$ ($^\circ$)','Interpreter','latex');
-ylabel('Noise coef. ($^\circ$)','Interpreter','latex');
+% ylabel('Noise coef. ($^\circ$)','Interpreter','latex');
 xlim([0 2*pi]);
-ylim([0,1.4]);
+ylim([0,2]);
 box off
 % legend(['\alpha = ',num2str(alphaRange(1))],['\alpha = ',num2str(alphaRange(2))], ...
 %     ['\alpha = ',num2str(alphaRange(3))]);
 % legend('boxoff')
 set(gcf,'Unit','Centimeters','Position',[2,2,18,5]);
+
+FigOutDir = '';
+% print(gcf,'-vector','-depsc',[FigOutDir,'PotentialVeloDiffuEOnly.eps'])

@@ -28,9 +28,10 @@ if LoadFlag == 0
     DynParams.RepTime = 1e3;
     DynParams.PFTime = 5;
     DynParams.NInputSample = 51; % The first input orientation is 0, the last is 2*pi
-    DynParams.FullDecodeTime = 4 + DynParams.StimTime;
+    DynParams.FullDecodeTime = [1,2.5,4] + DynParams.StimTime;
     DynParams.Decoder = 'Aware';
-    DynParams.Parallel = 10;
+%     DynParams.DecodingFrom = 'Sensory';
+%     DynParams.Parallel = 10;
 %% Generate feedforward connectivity
 
     dthetas = 2*pi/SensoryNet.N;
@@ -57,19 +58,22 @@ if LoadFlag == 0
     DecodedValue = zeros(DynParams.RepTime,DynParams.NInputSample,length(alphaRange));
     for ii = 1:length(alphaRange)
         SensoryNet.alpha = alphaRange(ii);
-        [DecodedthetaFull,SesoryNet,MemoryNet,DynParams] = FullSDEDynamics(SensoryNet,MemoryNet,DynParams);
+%         [DecodedthetaFull,SesoryNet,MemoryNet,DynParams] = FullSDEDynamics(SensoryNet,MemoryNet,DynParams);
+        [DecodedthetaFull,SesoryNet,MemoryNet,DynParams] = FullSDEDynamicsUniformNoise(SensoryNet,MemoryNet,DynParams);
         DecodedValue(:,:,ii) = reshape(DecodedthetaFull,DynParams.RepTime,DynParams.NInputSample);
     end
     if SaveFlag
         disp('Saving the data.')
-        save(['PoissonNoiseResultsDifferentalpha','Mode',SensoryNet.Mode,'.mat']);
+        save(['PoissonNoiseResultsDifferentalpha','Mode',SensoryNet.Mode,'From',DynParams.DecodingFrom,'.mat']);
     end
 end
 %%
 if LoadFlag
     clear %#ok<*UNRCH> 
     DataDir = '';
-    load([DataDir,'PoissonNoiseResultsDifferentalphaModeEOnly.mat']);
+%     load([DataDir,'PoissonNoiseResultsDifferentalphaModeEOnly.mat']);
+%     load([DataDir,'PoissonNoiseResultsDifferentalphaModeEOnlyFromSensory.mat']);
+    load([DataDir,'PoissonNoiseResultsDifferentalphaModeEOnlyFromMemoryUN.mat'])
 end
 close
 Color = [0.6667 0.6667 0.6667;0.3333 0.3333 0.3333;0 0 0];
@@ -152,3 +156,4 @@ box off
 xlabel('\theta (deg)');
 ylabel('SD (deg)');
 set(f1,'Units','Centimeters','Position',[2,2,10,5]);
+% print(f1,'-depsc','-vector','',[FigOutDir,'BiasSDDifferentalpha.eps'])

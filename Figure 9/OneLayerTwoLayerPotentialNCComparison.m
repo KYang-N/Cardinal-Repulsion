@@ -1,4 +1,4 @@
-%% Compare the potential landscapes and noise coefficients of the two-module and one-module model
+%% Compare the potential landscapes, tangent vector norms, and noise coefficients of the two-module and one-module model
 
 clear
 close
@@ -51,6 +51,7 @@ end
 
 tic
 [vtheta,Dtheta,~] = Compute_vtheta_Dtheta_new(SensoryNet,MemoryNet,DynParams);
+[dsdthetaNormTwoLayer,~] = ComputeTVNormTwoLayer(SensoryNet,MemoryNet,DynParams);
 toc
 SampleInput = 0:DynParams.dSample:2*pi;
 TwoLayerPotential = EstimatePotential(vtheta,SampleInput);
@@ -61,7 +62,7 @@ MemoryNet.tau = 0.01;
 MemoryNet.alpha = 5e-4;
 MemoryNet.beta = 2.4e-3;
 MemoryNet.N = 300;
-MemoryNet.Mode = 'Both'; % Include the inhibitory modulation
+MemoryNet.Mode = 'Both';
 MemoryNet.NEM = 1.5; MemoryNet.thM = 0.1; MemoryNet.sigM = 6.6; MemoryNet.maxf = 100;
 MemoryNet.q = @(x) MemoryNet.maxf*(x-MemoryNet.thM).^MemoryNet.NEM./( ...
     MemoryNet.sigM^MemoryNet.NEM+(x-MemoryNet.thM).^MemoryNet.NEM).*(x>MemoryNet.thM);
@@ -74,20 +75,22 @@ MemoryNet.IEc = 0.6*ones(MemoryNet.N,1);
 tic
 MemoryNet = OneLayerRecurConn(MemoryNet);
 [vtheta,Dtheta] = Compute_vtheta_Dtheta_OneLayer(MemoryNet,DynParams);
+dsdthetaNormOneLayer = ComputeTVNormOneLayer(MemoryNet,DynParams);
 toc
 OneLayerPotential = EstimatePotential(vtheta,SampleInput);
 OneLayerNoiseCoef = sqrt(2*Dtheta);
 %% Plot results
 
-TwoLayerColor = '#448983';
-OneLayerColor = '#5C0B72';
+TwoLayerColor = 'k';
+OneLayerColor = '#c7111a';
+FigOutDir = '';
 f1 = figure;
 figure(f1)
-plot(SampleInput,TwoLayerPotential,'LineWidth',2,'Color',TwoLayerColor);
+plot(SampleInput,TwoLayerPotential,'LineWidth',1,'Color',TwoLayerColor);
 hold on
-plot(SampleInput,OneLayerPotential,'LineWidth',2,'Color',OneLayerColor);
+plot(SampleInput,OneLayerPotential,'LineWidth',1,'Color',OneLayerColor);
 hold off
-xlabel('\theta');
+xlabel('$\theta~ (^\circ)$','Interpreter','latex');
 xticks(0:pi/2:2*pi);
 xlim([0 2*pi]);
 ylim([0,max(OneLayerPotential)+1]);
@@ -96,14 +99,15 @@ ylabel('Potential')
 box off
 set(gca,'FontSize',10,'LineWidth',0.8,'TickLength',[0.025,0.01],'LooseInset',[0 0 0 0],'TickDir','out');
 set(gcf,'Units','Centimeters','Position',[2,2,5,4]);
+% print(f1,'-depsc','-r300',[FigOutDir,'PotentialComparison.eps']);
 
 f2 = figure;
-figure(f2);
-plot(SampleInput,TwoLayerNoiseCoef,'LineWidth',2,'Color',TwoLayerColor);
+figure(f2)
+plot(SampleInput,TwoLayerNoiseCoef,'LineWidth',1,'Color','k');
 hold on
-plot(SampleInput,OneLayerNoiseCoef,'LineWidth',2,'Color',OneLayerColor);
+plot(SampleInput,OneLayerNoiseCoef,'LineWidth',1,'Color',OneLayerColor);
 hold off
-xlabel('\theta');
+xlabel('$\theta~ (^\circ)$','Interpreter','latex');
 xticks(0:pi/2:2*pi);
 xticklabels({'0','','90','','180'});
 ylabel('Noise Coef.');
@@ -111,3 +115,37 @@ ylim([0,max(OneLayerNoiseCoef)+0.2]);
 box off
 set(gca,'FontSize',10,'LineWidth',0.8,'TickLength',[0.025,0.01],'LooseInset',[0 0 0 0],'TickDir','out');
 set(gcf,'Units','Centimeters','Position',[2,2,5,4]);
+% print(f2,'-depsc','-r300',[FigOutDir,'NoiseCoefComparison.eps']);
+
+f3 = figure;
+figure(f3)
+plot(SampleInput,dsdthetaNormTwoLayer,'LineWidth',1,'Color','k');
+hold on
+plot(SampleInput,dsdthetaNormOneLayer,'LineWidth',1,'Color',OneLayerColor);
+hold off
+xticks(0:pi/2:2*pi);
+xticklabels({'0','','90','','180'});
+xlabel('$\theta~ (^\circ)$','Interpreter','latex');
+ylabel('$\|ds/d\theta \| \; (\mathrm{deg}^{-1})$','Interpreter','latex');
+ylim([0,max(dsdthetaNormTwoLayer)+2]);
+box off
+set(gca,'FontSize',10,'LineWidth',0.8,'TickLength',[0.025,0.01],'LooseInset',[0 0 0 0],'TickDir','out');
+set(gcf,'Units','Centimeters','Position',[2,2,5,4]);
+% print(f3,'-depsc','-r300',[FigOutDir,'dsdthetaComparison.eps']);
+
+
+f4 = figure;
+figure(f4)
+plot(SampleInput,1./dsdthetaNormTwoLayer,'LineWidth',1,'Color','k');
+hold on
+plot(SampleInput,1./dsdthetaNormOneLayer,'LineWidth',1,'Color','#c30d23');
+hold off
+xticks(0:pi/2:2*pi);
+xticklabels({'0','','90','','180'});
+xlabel('$\theta~ (^\circ)$','Interpreter','latex');
+ylabel('$\|ds/d\theta \|^{-1} \; (^\circ)$','Interpreter','latex');
+ylim([0,max(1./dsdthetaNormOneLayer)*1.2]);
+box off
+set(gca,'FontSize',10,'LineWidth',0.8,'TickLength',[0.025,0.01],'LooseInset',[0 0 0 0],'TickDir','out');
+set(gcf,'Units','Centimeters','Position',[2,2,5,4]);
+% print(f4,'-depsc','-r300',[FigOutDir,'dsdthetaISComparison.eps']);
