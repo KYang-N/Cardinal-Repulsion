@@ -81,4 +81,3 @@ SampleInput = 0:DynParams.dSample:2*pi;
 FigOutDir = '';
 
 f = PlotBiasStdDiscri(DecodedthetaFull,DynParams.FullDecodeTime,DynParams.StimTime,SampleInput,0);
-% print(f,'-depsc','-vector',[FigOutDir,'BothBiasSDalpha',strrep(num2str(SensoryNet.alpha),'.','p'),'beta',strrep(num2str(SensoryNet.beta),'.','p'),'.eps']);

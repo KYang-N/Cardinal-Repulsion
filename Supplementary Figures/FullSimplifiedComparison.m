@@ -179,13 +179,9 @@ function [BiasMean,BiasSEM,Std,StdSEM] = BiasStd(Decodedtheta,ThetaLoc)
         BiasSEM(Time,:) = BiasStdDv(Time,:)/sqrt(RepTime);
     end
     Std = zeros(DecodeTimeLength,NInputSample);
-    StdStdDv = Std;
     StdSEM = Std;
     for Time = 1:DecodeTimeLength
         Std(Time,:) = std(Bias(:,:,Time),0,1);
-        MeanSquare = mean(Bias(:,:,Time),1).^2;
-        StdSample = sqrt(Bias(:,:,Time).^2-MeanSquare);
-        StdStdDv(Time,:) = std(StdSample,0,1);
-        StdSEM(Time,:) = StdStdDv(Time,:)/sqrt(RepTime);
+        StdSEM(Time,:) = Std(Time,:)/sqrt(2*(RepTime-1));
     end
 end

@@ -59,10 +59,7 @@ end
 Std = zeros(length(DecodeTime),NInputSample);
 for Time = 1:length(DecodeTime)
     Std(Time,:) = std(Bias(:,:,Time),0,1);
-    MeanSquare = mean(Bias(:,:,Time),1).^2;
-    StdSample = sqrt(Bias(:,:,Time).^2-MeanSquare);
-    StdDv(Time,:) = std(StdSample,0,1);
-    SEM(Time,:) = StdDv(Time,:)/sqrt(RepTime);
+    SEM(Time,:) = Std(Time,:)/sqrt(2*(RepTime-1));
 end
 
 figure(f1)

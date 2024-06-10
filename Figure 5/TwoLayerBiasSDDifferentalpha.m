@@ -128,10 +128,7 @@ box off
 Std = zeros(length(alphaRange),NInputSample);
 for Time = 1:length(alphaRange)
     Std(Time,:) = std(Bias(:,:,Time),0,1);
-    MeanSquare = mean(Bias(:,:,Time),1).^2;
-    StdSample = sqrt(Bias(:,:,Time).^2-MeanSquare);
-    StdDv(Time,:) = std(StdSample,0,1);
-    SEM(Time,:) = StdDv(Time,:)/sqrt(RepTime);
+    SEM(Time,:) = Std(Time,:)/sqrt(2*(RepTime-1));
 end
 
 figure(f1)
@@ -156,4 +153,3 @@ box off
 xlabel('\theta (deg)');
 ylabel('SD (deg)');
 set(f1,'Units','Centimeters','Position',[2,2,10,5]);
-% print(f1,'-depsc','-vector','',[FigOutDir,'BiasSDDifferentalpha.eps'])

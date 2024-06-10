@@ -122,10 +122,7 @@ box off
 Std = zeros(length(JBackwardRange),NInputSample);
 for Time = 1:length(JBackwardRange)
     Std(Time,:) = std(Bias(:,:,Time),0,1);
-    MeanSquare = mean(Bias(:,:,Time),1).^2;
-    StdSample = sqrt(Bias(:,:,Time).^2-MeanSquare);
-    StdDv(Time,:) = std(StdSample,0,1);
-    SEM(Time,:) = StdDv(Time,:)/sqrt(RepTime);
+    SEM(Time,:) = StdDv(Time,:)/std(2*(RepTime-1));
 end
 
 figure(f1)
