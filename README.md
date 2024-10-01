@@ -21,9 +21,7 @@ To run the simulation and replicate the figures:
 
 ## Citation
 
-If you use this code in your work, please cite the original paper: Yang Jun, Zhang Hanqi, Lim Sukbin (2024) Sensory-memory interactions via modular structure explain errors in visual working memory eLife 13:RP95160
-
-https://doi.org/10.7554/eLife.95160.3
+If you use this code in your work, please cite the original paper: Jun Yang, Hanqi Zhang, Sukbin Lim (2024) Sensory-memory interactions via modular structure explain errors in visual working memory eLife 13:RP95160. https://doi.org/10.7554/eLife.95160.3
 
 ## License
 
